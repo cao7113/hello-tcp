@@ -1,8 +1,36 @@
 # https://taskfile.dev/usage/
 version: '3'
+vars:
+  PORT: 4000
 tasks:
   default: mix test --no-start
   sh: iex --erl "-kernel shell_history enabled" -S mix run --no-start
   run: iex --erl "-kernel shell_history enabled" -S mix
   server: mix run --no-halt
-  ht: curl -v http://localhost:4000
+  prel: MIXE_ENV=prod mix release --overwrite
+
+  # testing
+  nc-test: nc -v localhost {{.PORT}}
+  tel-test: curl -v telnet://localhost:{{.PORT}}
+  http-test: curl -v http://localhost:{{.PORT}}
+
+  ## Git ops
+  cmt: mix git_ops.release --yes && git push --follow-tags
+  app-info: mix git_ops.project_info
+  init-release: mix git_ops.release --initial
+
+  ## Docker
+  dk-build: docker build -t hello-tcp .
+  dk-run: 
+    deps: [dk-build]
+    cmds:
+    - docker run --name hello-tcp --rm -it -p {{.PORT}}:{{.PORT}} hello-tcp
+  dk-run2: docker run --name hello-tcp --rm -it -e 4004 -p {{.PORT}}:4004 hello-tcp
+  # https://github.com/OpenLinkOS/registry-mirrors
+  get-images: |
+    docker pull docker.linkos.org/hexpm/elixir:1.17.2-erlang-27.0-debian-bullseye-20240701-slim
+    docker tag docker.linkos.org/hexpm/elixir:1.17.2-erlang-27.0-debian-bullseye-20240701-slim hexpm/elixir:1.17.2-erlang-27.0-debian-bullseye-20240701-slim
+    # docker rmi docker.linkos.org/hexpm/elixir:1.17.2-erlang-27.0-debian-bullseye-20240701-slim
+
+    docker pull docker.linkos.org/library/debian:bullseye-20240701-slim
+    docker tag docker.linkos.org/library/debian:bullseye-20240701-slim debian:bullseye-20240701-slim

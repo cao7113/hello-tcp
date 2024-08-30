@@ -52,6 +52,10 @@ defmodule HelloTcp.Server do
     end
   end
 
+  defp handle_request(socket, h) when h in ["h\n", "help\n"] do
+    reply_help(socket)
+  end
+
   defp handle_request(socket, hi) when hi in ["hi\n", "hello\n"] do
     :gen_tcp.send(socket, "Hello, client!\n")
   end
@@ -74,7 +78,17 @@ defmodule HelloTcp.Server do
   end
 
   defp handle_request(socket, info) do
-    :gen_tcp.send(socket, "Unknown command #{info}")
+    :gen_tcp.send(
+      socket,
+      "Unknown command #{info |> String.trim()}, type help to get more\n"
+    )
+
+    reply_help(socket)
+
     Logger.warning("unknown client request: #{info}")
+  end
+
+  defp reply_help(socket) do
+    :gen_tcp.send(socket, "Support commands: [help, hello, ping, time, quit, echo xxx]\n")
   end
 end
