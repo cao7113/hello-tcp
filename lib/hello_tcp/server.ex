@@ -25,7 +25,13 @@ defmodule HelloTcp.Server do
     case :gen_tcp.accept(socket) do
       {:ok, client} ->
         Logger.info("Client connected")
-        Task.start_link(fn -> handle_client(client) end)
+
+        Task.start_link(fn ->
+          :gen_tcp.send(client, "Welcome to HelloTCP #{Application.spec(:hello_tcp, :vsn)}\n")
+          reply_help(client)
+          handle_client(client)
+        end)
+
         {:noreply, socket, {:continue, :accept_connections}}
 
       {:error, reason} ->

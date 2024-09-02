@@ -18,7 +18,7 @@ ref Taskfile.yml testing part
 
 ## More todo
 
-- [ ]  github actions
-- [ ]  run on fly.io
-- [ ]  ex testing
 - [ ]  cli entry
+- [ ]  github actions
+
+考虑基于 https://github.com/mtrudel/thousand_island ？
