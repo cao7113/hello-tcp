@@ -10,9 +10,24 @@ tasks:
   prel: MIXE_ENV=prod mix release --overwrite
 
   # testing
-  nc-test: nc -v localhost {{.PORT}}
-  tel-test: curl -v telnet://localhost:{{.PORT}}
+  # echo "hi\n time\n q" | nc localhost 4000
+  nc-test: 
+    cmds:
+      - |
+        echo -n "hi
+        time
+        q
+        " | nc localhost 4000
+  
   http-test: curl -v http://localhost:{{.PORT}}
+  tel: curl telnet://localhost:{{.PORT}}
+  # echo "hi\n time\n q" | curl telnet://localhost:4000
+  tel2:
+    cmds:
+      - |
+        echo "hi
+         time
+         q" | curl telnet://localhost:{{.PORT}}
 
   ## Git ops
   cmt: mix git_ops.release --yes && git push --follow-tags

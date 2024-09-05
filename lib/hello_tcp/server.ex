@@ -29,6 +29,7 @@ defmodule HelloTcp.Server do
         Task.start_link(fn ->
           :gen_tcp.send(client, "Welcome to HelloTCP #{Application.spec(:hello_tcp, :vsn)}\n")
           reply_help(client)
+          Logger.info("try handling client...")
           handle_client(client)
         end)
 
@@ -44,7 +45,12 @@ defmodule HelloTcp.Server do
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
         Logger.info("handling request data: #{data |> inspect}")
-        req = String.downcase(data)
+
+        req =
+          data
+          |> String.downcase()
+          |> String.trim_leading()
+
         handle_request(socket, req)
         handle_client(socket)
 
@@ -54,6 +60,10 @@ defmodule HelloTcp.Server do
 
       {:error, reason} ->
         Logger.error("Error receiving data: #{reason}")
+        :gen_tcp.close(socket)
+
+      other ->
+        Logger.error("Error receiving data: #{other |> inspect}")
         :gen_tcp.close(socket)
     end
   end
